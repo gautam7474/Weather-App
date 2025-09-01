@@ -1,9 +1,12 @@
-import React from "react";
+ import React from "react";
+import { useW } from "../context/Weather";
 
-const Button = (props) => {
+const Button = ({ value = "Search", onClick }) => {
+  const { handleSearch } = useW();
+
   return (
-    <button className="btn" onClick={props.onClick}>
-      {props.value}
+    <button className="btn" onClick={onClick || handleSearch}>
+      {value}
     </button>
   );
 };

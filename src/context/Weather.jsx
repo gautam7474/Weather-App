@@ -1,17 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { City } from "../api/index"; 
+import { City } from "../api/index.js";
 
- const WContext = createContext();
+const WContext = createContext();
 
- export const WProvider = ({ children }) => {
+export const WProvider = ({ children }) => {
   const [data, setData] = useState(null);
-  const [searchCity, setSearchCity] = useState("New Delhi"); 
 
-   useEffect(() => {
+  const [searchCity, setSearchCity] = useState("Delhi");
+
+  const [queryCity, setQueryCity] = useState("Delhi");
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        if (searchCity.trim() === "") return;
-        const result = await City(searchCity);
+        if (!queryCity.trim()) return;
+        const result = await City(queryCity);
         setData(result);
       } catch (error) {
         console.error("Error fetching weather data:", error);
@@ -19,13 +22,19 @@ import { City } from "../api/index";
     };
 
     fetchData();
-  }, [searchCity]);
+  }, [queryCity]);
+
+  const handleSearch = () => {
+    if (searchCity.trim()) {
+      setQueryCity(searchCity);
+    }
+  };
 
   return (
-    <WContext.Provider value={{ data, searchCity, setSearchCity }}>
+    <WContext.Provider value={{ data, searchCity, setSearchCity, handleSearch }}>
       {children}
     </WContext.Provider>
   );
 };
 
- export const useW = () => useContext(WContext);
+export const useW = () => useContext(WContext);

@@ -4,13 +4,22 @@ import { useW } from "../context/Weather";
 const WBackground = ({ condition }) => {
   if (!condition) return null;
 
-  switch (condition.toLowerCase()) {
+  const lower = condition.toLowerCase();
+
+  let type = "clear";
+  if (lower.includes("cloud")) type = "clouds";
+  else if (lower.includes("rain")) type = "rain";
+  else if (lower.includes("snow")) type = "snow";
+  else if (lower.includes("sun") || lower.includes("clear")) type = "clear";
+
+  switch (type) {
     case "clear":
       return (
         <div className="W-bg">
           <div className="sun"></div>
         </div>
       );
+
     case "clouds":
       return (
         <div className="W-bg">
@@ -19,6 +28,7 @@ const WBackground = ({ condition }) => {
           <div className="cloud large"></div>
         </div>
       );
+
     case "rain":
       return (
         <div className="W-bg">
@@ -35,6 +45,7 @@ const WBackground = ({ condition }) => {
           ))}
         </div>
       );
+
     case "snow":
       return (
         <div className="W-bg">
@@ -52,49 +63,36 @@ const WBackground = ({ condition }) => {
           ))}
         </div>
       );
+
     default:
       return null;
   }
 };
 
+
 const Card = () => {
-  const W = useW();
-  const data = W.data;
+  const { data } = useW();
 
-  if (!data) {
-    return <div className="card">Loading W...</div>;
-  }
+  if (!data) return <p>Loading...</p>;
 
-  const condition = W.data.current?.condition?.text || "Clear";
+  const { location, current } = data;
 
   return (
-    <div>
-      <WBackground condition={condition} />
+    <div className="card">
+      <div className="weather-icon">
+        <img src={current.condition.icon} alt={current.condition.text} />
+      </div>
+      <h2>{current.temp_c}° C</h2>
+      <h3 className="W-location">
+        {location.name}, {location.region}, {location.country}
+      </h3>
+      <p className="W-condition">{current.condition.text}</p>
 
-      <div className="card">
-        <img
-          src={W?.data.current?.condition?.icon}
-          alt={condition}
-          className="W-icon"
-        />
-
-        <h2 className="W-temp">{W.data.current?.temp_c}° C</h2>
-
-        <h5 className="W-location">
-          {W.data.location?.name}, {W.data.location?.region} {W.data.location?.country}
-        </h5>
-
-        <p className="W-condition">{condition}</p>
-
-        <div className="W-details">
-          <p><strong>Precip:</strong> {W.data.current?.precip_mm} mm</p>
-          <p><strong>Humidity:</strong> {W.data.current?.humidity}%</p>
-          <p><strong>Wind:</strong> {W.data.current?.wind_kph} kph</p>
-          <p>
-            <strong>Air quality:</strong>{" "}
-            {W.data.current?.air_quality ? "Satisfactory" : "Not available"}
-          </p>
-        </div>
+      <div className="W-details">
+        <p>Precip: {current.precip_mm} mm</p>
+        <p>Humidity: {current.humidity}%</p>
+        <p>Wind: {current.wind_kph} kph</p>
+        <p>Air quality: {current.air_quality["us-epa-index"]}</p>
       </div>
     </div>
   );
